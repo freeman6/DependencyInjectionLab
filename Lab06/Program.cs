@@ -9,12 +9,14 @@ namespace Lab06
 {
     class Program
     {
-        private readonly ServiceA serviceA;
+        private static IUnityContainer unityContainer;
+        private readonly IService serviceA;
         private readonly ILogger<Program> logger;
         static void Main(string[] args)
         {
             var host = CreateHostBuilder(args).Build();
             host.Services.GetRequiredService<Program>().Run();
+
             Console.ReadLine();
         }
         public Program(ILogger<Program> logger, ServiceA serviceA)
@@ -31,14 +33,14 @@ namespace Lab06
 
         private static IHostBuilder CreateHostBuilder(string[] args)
         {
-            var unityContainer = new UnityContainer();
+            unityContainer = new UnityContainer();
             return Host.CreateDefaultBuilder(args)
-                .UseUnityServiceProvider()
+                .UseUnityServiceProvider(unityContainer)
                 .ConfigureContainer<IUnityContainer>(services =>
                 {
                     services.RegisterType<Program>();
-                    services.RegisterType<ServiceA>();
-                    services.RegisterType<ServiceB>();
+                    services.RegisterType<IService, ServiceA>("ServiceA");
+                    services.RegisterType<IService, ServiceB>("ServiceB");
                 });
         }
     }
