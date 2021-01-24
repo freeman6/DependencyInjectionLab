@@ -1,31 +1,36 @@
 ﻿using System;
+using System.Linq;
+using System.Collections.Generic;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.DependencyInjection;
 
-namespace Lab03
+namespace Lab08
 {
-
     class Program
     {
-        private readonly IService service;
+        public IService serviceA;
+        public IService serviceB;
+        private static IHost host;
         private readonly ILogger<Program> logger;
         static void Main(string[] args)
         {
-            var host = CreateHostBuilder(args).Build();
+            host = CreateHostBuilder(args).Build();
             host.Services.GetRequiredService<Program>().Run();
-
             Console.ReadLine();
         }
-        public Program(ILogger<Program> logger, ServiceResolver ServiceResolver)
+        public Program(ILogger<Program> logger)
         {
             this.logger = logger;
-            this.service = ServiceResolver.GetService();
         }
         public void Run()
         {
+            serviceA = host.Services.GetServices<IService>().FirstOrDefault(x => x.GetType().Equals(typeof(ServiceA))); ;
+            serviceB = host.Services.GetServices<IService>().FirstOrDefault(x => x.GetType().Equals(typeof(ServiceB))); ;
+
             logger.LogInformation("Program is running.");
-            service.DoSomething();
+            serviceA.DoSomething();
+            serviceB.DoSomething();
             logger.LogInformation("Program is completed.");
         }
 
@@ -36,21 +41,8 @@ namespace Lab03
                 {
                     services.AddLogging(config => config.AddConsole());
                     services.AddTransient<Program>();
-                    services.AddTransient<ServiceResolver>();
-                    services.AddTransient<ServiceA>();
-                    services.AddTransient<ServiceB>();
-                    services.AddTransient<Func<string, IService>>(provider => key =>
-                    {
-                        switch (key)
-                        {
-                            case "A":
-                                return provider.GetService<ServiceA>();
-                            case "B":
-                                return provider.GetService<ServiceB>();
-                            default:
-                                return provider.GetService<ServiceA>();
-                        }
-                    });
+                    services.AddTransient<IService, ServiceA>();
+                    services.AddTransient<IService, ServiceB>();
                 });
         }
     }
@@ -82,14 +74,4 @@ namespace Lab03
             => logger.LogInformation("ServiceB is doing something.");
     }
 
-    public class ServiceResolver
-    {
-        private readonly Func<string, IService> service;
-        public ServiceResolver(Func<string, IService> service)
-        {
-            this.service = service;
-        }
-
-        public IService GetService() => service("B");
-    }
 }
