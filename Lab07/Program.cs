@@ -1,6 +1,8 @@
 ﻿using System;
+using System.IO;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
+using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 
 namespace Lab03
@@ -10,11 +12,13 @@ namespace Lab03
     {
         private readonly IService service;
         private readonly ILogger<Program> logger;
+        private readonly IConfiguration config;
+
         static void Main(string[] args)
         {
             var host = CreateHostBuilder(args).Build();
             host.Services.GetRequiredService<Program>().Run();
-
+            
             Console.ReadLine();
         }
         public Program(ILogger<Program> logger, ServiceResolver ServiceResolver)
@@ -51,6 +55,11 @@ namespace Lab03
                                 return provider.GetService<ServiceA>();
                         }
                     });
+                })
+                .ConfigureAppConfiguration(config =>
+                {
+                    config.SetBasePath(Directory.GetCurrentDirectory());
+                    config.AddJsonFile("Appsettings.json", true, true);
                 });
         }
     }
@@ -85,11 +94,13 @@ namespace Lab03
     public class ServiceResolver
     {
         private readonly Func<string, IService> service;
-        public ServiceResolver(Func<string, IService> service)
+        private readonly IConfiguration config;
+        public ServiceResolver(Func<string, IService> service, IConfiguration config)
         {
             this.service = service;
+            this.config = config;
         }
 
-        public IService GetService() => service("B");
+        public IService GetService() => service(config["ServiceType"]);
     }
 }

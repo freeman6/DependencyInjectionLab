@@ -9,4 +9,10 @@
     <PackageReference Include="Microsoft.Extensions.Hosting" Version="3.1.11" />
   </ItemGroup>
 
+  <ItemGroup>
+    <None Update="Appsettings.json">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
+  </ItemGroup>
+
 </Project>
