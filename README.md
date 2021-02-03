@@ -11,3 +11,4 @@
 |Lab07|練習情境：Single Interface Multiple Implementation 存取 DI 服務(一) | Func RegisterType Soluction |
 |Lab08|練習情境：Single Interface Multiple Implementation 存取 DI 服務(二) | GetServices Soluction|
 |Lab09|練習情境：Single Interface Multiple Implementation 存取 DI 服務(三) | WebAPI |
+|Lab10|練習情境：建構子參數 |  |
